@@ -44,65 +44,107 @@ public class BinaryTree<T extends Comparable<T>> {
         }
     }
 
-//    private class NodePresenter {
-//        final private static int SELF_ROWS = 3;
-//        private String value;
-//        final private int rows;
-//        final private int columns;
-//        private NodePresenter leftNP;
-//        private NodePresenter rightNP;
-//
-//        NodePresenter(TreeNode node) {
-//            if (node == null) {
-//                // for null node representation is two-space string
-//                value = "  ";
-//                rows = 1;
-//                columns = value.length();
-//            } else {
-//                leftNP = new NodePresenter(node.getLeftNode());
-//                rightNP = new NodePresenter(node.getRightNode());
-//
-//                // for existing node representation will consist of:
-//                value = node.getValue().toString();                                 //             value             +1 row
-//                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;   //     __________|_________      +1 row
-//                                                                                    //    |                    |     +1 row
-//                                                                                    //   left                right
-//                                                                                    // \left columns/ \right columns/
-//                                                                                    //               +1 column as spacer between
-//                                                                                    // left and right columns
-//                columns = Math.max(value.length(), leftNP.getColumns() + rightNP.getColumns()) + 1;
-//            }
-//
-//        }
-//
-//        int getRows() {
-//            return rows;
-//        }
-//
-//        int getColumns() {
-//            return columns;
-//        }
-//
-//        char charAtPos(int row, int col) {
-//            if ((row < 0) || (col < 0)) return ' '; // return spacer if pos below bounds
-//            if (col < columns) {
-//                switch (row) {
-//                    case 0: ;
-//                    case 1: ;
-//                    case 2: ;
-//                    default: ;
-//                }
-//
-//                if (row < SELF_ROWS) { // if requested row belongs to this presenter - provide char
-//                    if
-//                } else { // otherwise return char from child
-//
-//                }
-//            } else {
-//                return ' '; // return spacer if requested column is beyond of specified width
-//            }
-//        }
-//    }
+    private class NodePresenter {
+        final private static int SELF_ROWS = 3;
+        private String value;
+        final private int rows;
+        final private int columns;
+        private NodePresenter leftNP;
+        private NodePresenter rightNP;
+
+        NodePresenter(TreeNode node) {
+            if (node == null) {
+                // for null node representation is two-space string
+                value = "  ";
+                rows = 1;
+                columns = value.length();
+            } else {
+                leftNP = new NodePresenter(node.getLeftNode());
+                rightNP = new NodePresenter(node.getRightNode());
+
+                // for existing node representation will consist of:
+                value = node.getValue().toString();                                 //             value             +1 row
+                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;   //     __________|_________      +1 row
+                                                                                    //    |                    |     +1 row
+                                                                                    //   left                right
+                                                                                    // \left columns/ \right columns/
+                                                                                    //               +1 column as spacer between
+                                                                                    // left and right columns
+                columns = Math.max(value.length(), leftNP.getColumns() + rightNP.getColumns()) + 1;
+            }
+
+        }
+
+        int getRows() {
+            return rows;
+        }
+
+        int getColumns() {
+            return columns;
+        }
+
+        char charAtPos(int row, int col) {
+            if ((row < 0) || (col < 0)) return ' '; // return spacer if pos below bounds
+            if (col < columns) {
+                switch (row) {
+                    case 0: { // compose string with value representation
+                        final int offset = columns / 2 - value.length() / 2;
+                        if ((col < offset) || (col > (offset + value.length() - 1))) {
+                            return ' ';
+                        } else {
+                            return value.charAt(col - offset);
+                        }
+                    }
+                    case 1: { // compose string of branches
+                        if (col == columns / 2) {
+                            return (leftNP != null) || ((rightNP != null)) ? '|' : ' ';
+                        } else if (((leftNP != null) && (col >= leftNP.getColumns() / 2) && (col < columns / 2)) ||
+                        (rightNP != null) && (col <= (columns / 2 + rightNP.getColumns() / 2)) && (col > columns / 2)) {
+                            return '_';
+                        } else {
+                            return ' ';
+                        }
+                    }
+                    case 2: { // compose string of child connectors
+                        if (((leftNP != null) && (col == leftNP.getColumns() / 2)) ||
+                                ((rightNP != null) && (col == (columns / 2 + rightNP.getColumns() / 2)))) {
+                            return '|';
+                        } else {
+                            return ' ';
+                        }
+                    }
+                    default: {
+                        if (col < columns / 2) {
+                            return leftNP == null ? ' ' : leftNP.charAtPos(row - SELF_ROWS, col);
+                        } else {
+                            return rightNP == null ? ' ' : rightNP.charAtPos(row - SELF_ROWS, col - columns / 2);
+                        }
+                    }
+                }
+            } else {
+                return ' '; // return spacer if requested column is beyond of specified width
+            }
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            char[] row = new char[columns];
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
+                    row[j] = charAtPos(i, j);
+                }
+                sb.append(String.copyValueOf(row)).append("\r\n");
+            }
+
+            return sb.toString();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return new NodePresenter(root).toString();
+    }
 
     private TreeNode add(TreeNode node, T value) {
         if (node == null) return new TreeNode(value);
@@ -157,8 +199,14 @@ public class BinaryTree<T extends Comparable<T>> {
         BinaryTree<Integer> tree = new BinaryTree<>();
 
         tree.add(5);
+        System.out.println(tree);
+
         tree.add(2);
+        System.out.println(tree);
+
         tree.add(1);
+        System.out.println(tree);
+
         tree.add(3);
         tree.add(4);
         tree.add(7);
