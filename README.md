@@ -7,6 +7,8 @@ This implemetation includes such operates:
 - deleting value
 - printing out tree structure via pseudo graphic
 
+```
+
 Example output:
 
 Initial tree
@@ -46,6 +48,7 @@ Random tree
                                    ┌─┴──┐   ┌──┴──┐    ┌┴─┐
                                   48       63    67        
                                   ┌┴─┐     ┌┴─┐  ┌┴─┐      
-                                                           
-
+     
+     
+```
 
