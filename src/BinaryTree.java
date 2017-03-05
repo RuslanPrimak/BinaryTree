@@ -188,8 +188,10 @@ public class BinaryTree<T extends Comparable<T>> {
                 rightNP = new NodePresenter(node.getRightNode());
 
                 // for existing node representation will consist of:
-                value = node.getValue().toString();                                 //             value          +1 row
-                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;   //    ┌───────┴───────┐  +1 row
+                value = node.getValue().toString();
+                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;
+                //             value          +1 row
+                //    ┌───────┴───────┐  +1 row
                 //   left                right
                 // \left columns/ \right columns/
                 //               +1 column as spacer
@@ -214,9 +216,6 @@ public class BinaryTree<T extends Comparable<T>> {
          * @return char of the virtual table
          */
         char charAtPos(int row, int col) {
-            if ((row < 0) || (col < 0))
-                throw new AssertionError("Overbound");
-
             if ((leftNP == null) || (rightNP == null)) { //children could not exist in case this presenter is for null
                 return SPACER_CHAR; // node and so it should return only spacers
             } else {
