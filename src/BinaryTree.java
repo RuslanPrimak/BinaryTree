@@ -45,6 +45,10 @@ public class BinaryTree<T extends Comparable<T>> {
     }
 
     private class NodePresenter {
+        final private static char SPACER_CHAR = ' ';
+        final private static char OFFSHOOT_CHAR = ' ';
+        final private static char SIDESHOOT_CHAR = ' ';
+        final private static char SIDEEND_CHAR = ' ';
         final private static int SELF_ROWS = 3;
         private String value;
         final private int rows;
@@ -64,7 +68,7 @@ public class BinaryTree<T extends Comparable<T>> {
 
                 // for existing node representation will consist of:
                 value = node.getValue().toString();                                 //             value             +1 row
-                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;   //     __________|_________      +1 row
+                rows = Math.max(leftNP.getRows(), rightNP.getRows()) + SELF_ROWS;   //     __________┴_________      +1 row
                                                                                     //    |                    |     +1 row
                                                                                     //   left                right
                                                                                     // \left columns/ \right columns/
@@ -83,46 +87,61 @@ public class BinaryTree<T extends Comparable<T>> {
             return columns;
         }
 
+        /**
+         * Gets char from virtual table of the tree representation
+         * @param row - row for char
+         * @param col - col for char
+         * @return char of the virtual table
+         */
         char charAtPos(int row, int col) {
-            if ((row < 0) || (col < 0)) return ' '; // return spacer if pos below bounds
-            if (col < columns) {
-                switch (row) {
-                    case 0: { // compose string with value representation
-                        final int offset = columns / 2 - value.length() / 2;
-                        if ((col < offset) || (col > (offset + value.length() - 1))) {
-                            return ' ';
-                        } else {
+            if ((row < 0) || (col < 0))
+                throw new AssertionError("Overbound");
+
+            if ((leftNP == null) || (rightNP == null)) { //children could not exist in case this presenter is for null
+                return ' '; // node and so it should return only spacers
+            } else {
+                final int middle = columns / 2;
+
+                if (row < SELF_ROWS) {
+                    // row 0 defines parent's value
+                    // row 1 defines parent's offshoot and side shoots to children
+                    // row 2 defines connectors to the children
+                    if (row == 0) {
+                        final int offset = middle - value.length() / 2;
+                        if ((col >= offset) && (col < offset + value.length())) {
                             return value.charAt(col - offset);
-                        }
-                    }
-                    case 1: { // compose string of branches
-                        if (col == columns / 2) {
-                            return (leftNP != null) || ((rightNP != null)) ? '|' : ' ';
-                        } else if (((leftNP != null) && (col >= leftNP.getColumns() / 2) && (col < columns / 2)) ||
-                        (rightNP != null) && (col <= (columns / 2 + rightNP.getColumns() / 2)) && (col > columns / 2)) {
-                            return '_';
                         } else {
                             return ' ';
                         }
-                    }
-                    case 2: { // compose string of child connectors
-                        if (((leftNP != null) && (col == leftNP.getColumns() / 2)) ||
-                                ((rightNP != null) && (col == (columns / 2 + rightNP.getColumns() / 2)))) {
-                            return '|';
+                    } else {
+                        if (col < middle) {
+                            if (row == 1) {
+                                return col >= (leftNP.columns / 2) ? '_' : ' ';
+                            } else { // row == 2
+                                return col == (leftNP.columns / 2) ? '|' : ' ';
+                            }
+                        } else if (col > middle) {
+                            if (row == 1) {
+                                return col <= (middle + rightNP.columns / 2) ? '_' : ' ';
+                            } else {  // row == 2
+                                return col == (middle + rightNP.columns / 2) ? '|' : ' ';
+                            }
                         } else {
-                            return ' ';
+                            assert(col == middle);
+                            return row == 1 ? '|' : ' ';
                         }
                     }
-                    default: {
-                        if (col < columns / 2) {
-                            return leftNP == null ? ' ' : leftNP.charAtPos(row - SELF_ROWS, col);
-                        } else {
-                            return rightNP == null ? ' ' : rightNP.charAtPos(row - SELF_ROWS, col - columns / 2);
-                        }
+                } else {
+                    // get char from children
+                    row -= SELF_ROWS;
+                    if (col < middle) {
+                        return leftNP.charAtPos(row, col);
+                    } else if (col > middle) {
+                        return rightNP.charAtPos(row, col - middle);
+                    } else {
+                        return ' ';
                     }
                 }
-            } else {
-                return ' '; // return spacer if requested column is beyond of specified width
             }
         }
 
@@ -196,24 +215,25 @@ public class BinaryTree<T extends Comparable<T>> {
 
 
     public static void main(String[] args) {
-        BinaryTree<Integer> tree = new BinaryTree<>();
+//        BinaryTree<Integer> tree = new BinaryTree<>();
+//
+//        tree.add(5);
+//        System.out.println(tree);
+//
+//        tree.add(2);
+//        System.out.println(tree);
+//
+//        tree.add(1);
+//        System.out.println(tree);
+//
+//        tree.add(3);
+//        tree.add(4);
+//        tree.add(7);
+//        tree.add(6);
+//        tree.add(8);
+//        tree.add(9);
 
-        tree.add(5);
-        System.out.println(tree);
-
-        tree.add(2);
-        System.out.println(tree);
-
-        tree.add(1);
-        System.out.println(tree);
-
-        tree.add(3);
-        tree.add(4);
-        tree.add(7);
-        tree.add(6);
-        tree.add(8);
-        tree.add(9);
-
+        System.out.println("\u250c\u2500\u2534\u2500\u2510");
         System.out.println("Complete!");
     }
 }
